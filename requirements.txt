@@ -1,0 +1,6 @@
+flask==3.0.3
+numpy==1.26.4
+paddleocr==2.7.3
+paddlepaddle==2.6.1
+OpenCC==1.1.7
+wfastcgi==3.0.0

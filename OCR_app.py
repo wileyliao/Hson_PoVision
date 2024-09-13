@@ -47,7 +47,6 @@ keywords = [
     "EXPIRYDATE"
 ]
 
-roi_coord = [[10, 315], [906, 455]]
 prefix = "data:image/jpeg;base64,"
 
 app = Flask(__name__)
@@ -70,7 +69,7 @@ def po_vision_app():
         """處理前墜"""
 
         ocr_result = po_vision_main(
-            cut_roi_from_image(image, roi_coord),
+            cut_roi_from_image(image, y_top_ratio=0.2, y_bottom_ratio=0.4),
             keywords
         )
         end_time = time.time()
@@ -82,7 +81,6 @@ def po_vision_app():
                 {
                     'GUID': guid,
                     'logs': log_contents,
-                    'roi': (','.join(map(str, [item for sublist in roi_coord for item in sublist]))),
                     'op_keywords': (','.join(keywords)),
                     **ocr_result
                 }
@@ -105,7 +103,6 @@ def po_vision_app():
                 {
                     'GUID': guid,
                     'logs': log_contents,
-                    'roi': (','.join(map(str, [item for sublist in roi_coord for item in sublist]))),
                     'op_keywords': (','.join(keywords))
                 }
             ],
@@ -119,4 +116,4 @@ def po_vision_app():
 
 
 if __name__ == '__main__':
-    app.run(port=3000)
+    app.run(port=5000)

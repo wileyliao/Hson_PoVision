@@ -13,11 +13,15 @@ def base64_decoder(image_64):
 
 
 @error_handler
-def cut_roi_from_image(image, coords):
-    (x1, y1), (x2, y2) = coords
-    top_left_x = min(x1, x2)
-    top_left_y = min(y1, y2)
-    bottom_right_x = max(x1, x2)
-    bottom_right_y = max(y1, y2)
-    roi_image = image[top_left_y:bottom_right_y, top_left_x:bottom_right_x]
+def cut_roi_from_image(image, y_top_ratio, y_bottom_ratio):
+    # 獲取圖像的高度和寬度
+    height, width, _ = image.shape
+
+    # 使用比例計算出新的 y 座標
+    y1 = int(y_top_ratio * height)
+    y2 = int(y_bottom_ratio * height)
+
+    # x 方向覆蓋整個圖像的寬度
+    roi_image = image[y1:y2, 0:width]
+
     return roi_image

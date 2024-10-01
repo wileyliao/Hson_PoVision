@@ -69,7 +69,7 @@ def po_vision_app():
         """處理前墜"""
 
         ocr_result = po_vision_main(
-            cut_roi_from_image(image, y_top_ratio=0.2, y_bottom_ratio=0.4),
+            cut_roi_from_image(image, y_top_ratio=0.2, y_bottom_ratio=0.5),
             keywords
         )
         end_time = time.time()

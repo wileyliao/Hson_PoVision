@@ -34,3 +34,16 @@ def po_vision_main(image_path, keywords):
     logging.info(f'End analyze')
 
     return ui_result
+
+
+if __name__ == '__main__':
+    keywords = [
+        "PONO",
+        "PRODUCT",
+        "QUANTITY",
+        "BATCH NUMBER",
+        "EXPIRYDATE"
+    ]
+
+    result = po_vision_main('ROI.jpg', keywords)
+    print(result)

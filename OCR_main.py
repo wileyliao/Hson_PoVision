@@ -20,18 +20,22 @@ def po_vision_main(image_path, keywords):
 
     ori_txt = txt_extract(image_path, ocr_reader)
     logging.info(f'Original text: {ori_txt}')
+    print(f'\n {ori_txt}')
 
     processor = TextProcessor()
 
     matched = match_keywords(keywords, ori_txt, processor)
     logging.info(f'match_keywords: {matched}')
+    print(f'\n {matched}')
 
     group = group_same_column_by_keywords(matched, ori_txt)
     logging.info(f'group_same_column_by_keywords: {group}')
+    print(f'\n {group}')
 
     ui_result = process_ui_result(group, processor)
     logging.info(f'process_ui_result: {ui_result}')
     logging.info(f'End analyze')
+    print(f'\n {ui_result}')
 
     return ui_result
 
@@ -45,5 +49,4 @@ if __name__ == '__main__':
         "EXPIRYDATE"
     ]
 
-    result = po_vision_main('ROI.jpg', keywords)
-    print(result)
+    po_vision_main('ROI.jpg', keywords)

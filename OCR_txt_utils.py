@@ -9,7 +9,16 @@ class TextProcessor:
 
     def convert_to_traditional(self, text):
         """轉換簡體字為繁體字"""
-        return self.converter.convert(text)
+        if isinstance(text, list):
+            # 遍歷列表並只轉換 'text' 的值
+            for item in text:
+                if 'text' in item:
+                    item['text'] = self.converter.convert(item['text'])  # 只轉換文本部分
+            return text
+        elif isinstance(text, str):
+            return self.converter.convert(text)
+        else:
+            raise TypeError("Input should be a string or a list of dictionaries with 'text' keys")
 
     @staticmethod
     def extract_numbers(text):

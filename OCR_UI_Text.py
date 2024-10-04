@@ -5,7 +5,7 @@ from Error_handler import error_handler
 def process_ui_result(grouped_data, processor):
     saved_dict = {}
     for keyword, items in grouped_data.items():
-        group_name = processor.convert_to_traditional(keyword).lower()
+        group_name = keyword.lower()
 
         if group_name == 'pono':
             item = items[0] if items else None

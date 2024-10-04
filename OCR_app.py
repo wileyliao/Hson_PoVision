@@ -47,6 +47,8 @@ keywords = [
     "EXPIRYDATE"
 ]
 
+pharma_company_set = {'大昌', '裕利', '和安', '中外'}
+
 prefix = "data:image/jpeg;base64,"
 
 app = Flask(__name__)
@@ -69,9 +71,11 @@ def po_vision_app():
         """處理前墜"""
 
         ocr_result = po_vision_main(
-            cut_roi_from_image(image, y_top_ratio=0.2, y_bottom_ratio=0.5),
-            keywords
+            cut_roi_from_image(image, y_top_ratio=0, y_bottom_ratio=0.5),
+            keywords,
+            pharma_company_set
         )
+
         end_time = time.time()
         time_taken = end_time - start_time
         log_contents = log_stream.getvalue()

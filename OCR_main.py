@@ -1,11 +1,11 @@
 from paddleocr import PaddleOCR
 from OCR_txt_utils import TextProcessor, match_keywords, group_same_column_by_keywords
 from OCR_UI_Text import process_ui_result
-from extract_ROI_DKSH import (
-    dk_extract_roi_product,
-    dk_extract_roi_quantity,
-    dk_extract_roi_batch_num,
-    dk_extract_roi_date
+from DKSH_ROI_Extractor import (
+    dksh_extract_roi_product,
+    dksh_extract_roi_quantity,
+    dksh_extract_roi_batch_num,
+    dksh_extract_roi_date
 )
 import logging
 import cv2
@@ -17,45 +17,6 @@ def extract_coord_from_dict(data, keyword):
         if keyword in item['text']:
             return item['coord']
     return None
-
-
-def find_related_value(data, keyword):
-    keyword_coords = None
-    target_text = None
-    target_conf = None
-
-    # 找到 keyword 的座標
-    for item in data:
-        if keyword in item['text']:
-            keyword_coords = item['coord']
-            break
-
-    if not keyword_coords:
-        return None  # 如果沒找到關鍵字，返回 None
-
-    # keyword 的右側 X 坐標
-    keyword_x_max = max(point[0] for point in keyword_coords)  # 取右邊界 X 坐標
-    keyword_y_min = min(point[1] for point in keyword_coords)  # 取上邊界 Y 坐標
-    keyword_y_max = max(point[1] for point in keyword_coords)  # 取下邊界 Y 坐標
-
-    # 遍歷所有項目，找到位於 "請購單號" 右側且在同一排的項目
-    for item in data:
-        item_coords = item['coord']
-        item_x_min = min(point[0] for point in item_coords)  # 取左邊界 X 坐標
-        item_y_min = min(point[1] for point in item_coords)  # 取上邊界 Y 坐標
-        item_y_max = max(point[1] for point in item_coords)  # 取下邊界 Y 坐標
-
-        # 檢查是否在 "請購單號" 的右側並且在同一排
-        if item_x_min > keyword_x_max and abs(item_y_min - keyword_y_min) < 10 and abs(item_y_max - keyword_y_max) < 10:
-            target_text = item['text']
-            target_conf = item['conf']
-            break
-
-    return target_text, target_conf
-
-
-def get_image_left_edge(image):
-    return [[0, 0]]  # 左側邊界的坐標
 
 
 def find_company_in_top_n(data, top_n=5, pharma_company_set=None):
@@ -87,20 +48,20 @@ def po_vision_main(image_path, keywords, pharma_company_set):
             })
         return extracted_data
 
+    # Initial OCR reader and text processor
     ocr_reader = PaddleOCR(use_angle_cls=True, lang='ch')
-
     processor = TextProcessor()
 
     image = cv2.imread(image_path)
     image_height, image_width, _ = image.shape
 
+    # Get original text and convert to traditional
     ori_txt = txt_extract(image_path, ocr_reader)
     logging.info(f'Original text: {ori_txt}')
-    print(f'\n {ori_txt}')
-
     ori_traditional_txt = processor.convert_to_traditional(ori_txt)
     print(f'\n {ori_traditional_txt}')
 
+    # Get the company of the PO
     pharma_company = find_company_in_top_n(ori_traditional_txt, top_n=5, pharma_company_set=pharma_company_set)
     logging.info(f'Company: {pharma_company}')
     print(f'\n {pharma_company}')
@@ -115,35 +76,68 @@ def po_vision_main(image_path, keywords, pharma_company_set):
         coord_expiry = extract_coord_from_dict(ori_traditional_txt, '有效期')  # 提取 '有效期' 的座標
 
         # 提取 product 的 ROI
-        roi_product = dk_extract_roi_product(image, coord_quantity, coord_product, image_height, text_height_multiplier=6)
+        roi_product = dksh_extract_roi_product(image, coord_quantity, coord_product, image_height, text_height_multiplier=6)
 
         # 提取 quantity 的 ROI
-        roi_quantity = dk_extract_roi_quantity(image, coord_quantity, coord_price, text_height_multiplier=6)
+        roi_quantity = dksh_extract_roi_quantity(image, coord_quantity, coord_price, text_height_multiplier=6)
 
         # 提取 batch_num 的 ROI
-        roi_batch_num = dk_extract_roi_batch_num(image, coord_batch_num, text_height_multiplier=6)
+        roi_batch_num = dksh_extract_roi_batch_num(image, coord_batch_num, text_height_multiplier=6)
 
         # 提取 date 的 ROI
-        roi_date = dk_extract_roi_date(image, coord_batch_num, coord_expiry, text_height_multiplier=6)
+        roi_date = dksh_extract_roi_date(image, coord_batch_num, coord_expiry, text_height_multiplier=6)
 
-        product_txt = txt_extract(roi_product, ocr_reader)
-        quantity_txt = txt_extract(roi_quantity, ocr_reader)
-        batch_num_txt = txt_extract(roi_batch_num, ocr_reader)
-        expiry_date_txt = txt_extract(roi_date, ocr_reader)
-        # 提取po_number
-        po_number, po_number_conf = find_related_value(ori_traditional_txt, '請購單號')
+        product_roi_txt = txt_extract(roi_product, ocr_reader)
+        quantity_roi_txt = txt_extract(roi_quantity, ocr_reader)
+        batch_num_roi_txt = txt_extract(roi_batch_num, ocr_reader)
+        expiry_date_roi_txt = txt_extract(roi_date, ocr_reader)
 
-        print(f'po_number: {po_number}')
-        print(f'po_number_conf: {po_number_conf}')
-        print(f'product: {product_txt}')
-        print(f'quantity: {quantity_txt}')
-        print(f'batch_num: {batch_num_txt}')
-        print(f'expiry_date: {expiry_date_txt}')
+        en_product_txt = product_roi_txt[0]['text']
+        en_product_txt_conf = product_roi_txt[0]['conf']
+
+        cht_product_txt = product_roi_txt[1]['text']
+        cht_product_txt_conf = product_roi_txt[1]['conf']
+
+        quantity_txt = quantity_roi_txt[0]['text']
+        quantity_txt_conf = quantity_roi_txt[0]['conf']
+
+        batch_num_txt = batch_num_roi_txt[0]['text']
+        batch_num_txt_conf = batch_num_roi_txt[0]['conf']
+
+        expiry_date_txt = expiry_date_roi_txt[1]['text']
+        expiry_date_txt_conf = expiry_date_roi_txt[1]['conf']
+
+        print('en_product_txt')
+        print(en_product_txt)
+        print(en_product_txt_conf)
+
+        print('cht_product_txt')
+        print(cht_product_txt)
+        print(cht_product_txt_conf)
+
+        print('quantity_txt')
+        print(quantity_txt)
+        print(quantity_txt_conf)
+
+        print('batch_num_txt')
+        print(batch_num_txt)
+        print(batch_num_txt_conf)
+
+        print('expiry_date_txt')
+        print(expiry_date_txt)
+        print(expiry_date_txt_conf)
+
+
+
+
+        # print(f'po_number: {po_number}')
+        # print(f'po_number_conf: {po_number_conf}')
+        # print(f'product: {product_roi_txt}， \n {len(product_roi_txt)}')
+        # print(f'quantity: {quantity_roi_txt}， \n {len(quantity_roi_txt)}')
+        # print(f'batch_num: {batch_num_roi_txt}， \n {len(batch_num_roi_txt)}')
+        # print(f'expiry_date: {expiry_date_roi_txt}， \n {len(expiry_date_roi_txt)}')
 
     else:
-
-
-
         return
 
 

@@ -1,9 +1,17 @@
-from DKSH_ROI_Extractor import (
-    dksh_extract_roi_product,
-    dksh_extract_roi_quantity,
-    dksh_extract_roi_batch_num,
-    dksh_extract_roi_date
-)
+from DKSH_ROI_Extractor import *
+
+
+def extract_keywords_coord_from_dict(data, keyword):
+    """根據 keyword 從字典中提取 coord"""
+    for item in data:
+        if keyword in item['text']:
+            return item['coord']
+    return None
+
+
+def extract_text_conf(txt_extract, roi, idx, ocr_reader):
+    txt_data = txt_extract(roi, ocr_reader)
+    return txt_data[idx]['text'], txt_data[idx]['conf']
 
 
 def get_po_num(data, keyword):
@@ -33,7 +41,8 @@ def get_po_num(data, keyword):
         item_y_max = max(point[1] for point in item_coords)  # 取下邊界 Y 坐標
 
         # 檢查是否在 "請購單號" 的右側並且在同一排
-        if item_x_min > keyword_x_max and abs(item_y_min - keyword_y_min) < 10 and abs(item_y_max - keyword_y_max) < 10:
+        if item_x_min > keyword_x_max and abs(item_y_min - keyword_y_min) < 10 and abs(
+                item_y_max - keyword_y_max) < 10:
             po_num = item['text']
             po_num_conf = item['conf']
             break
@@ -41,21 +50,12 @@ def get_po_num(data, keyword):
     return po_num, po_num_conf
 
 
-def extract_keywords_coord_from_dict(data, keyword):
-    """根據 keyword 從字典中提取 coord"""
-    for item in data:
-        if keyword in item['text']:
-            return item['coord']
-    return None
-
-
 def dksh_text_extractor_main(ori_traditional_txt, image, image_height, txt_extract, ocr_reader):
-
     # 從字典中提取座標
     coord_quantity = extract_keywords_coord_from_dict(ori_traditional_txt, '數量')  # 提取 '數量' 的座標
     coord_price = extract_keywords_coord_from_dict(ori_traditional_txt, '單價')  # 提取 '單價' 的座標
     coord_product = extract_keywords_coord_from_dict(ori_traditional_txt, '品名及規格')  # 提取 '品名及規格' 的座標
-    coord_batch_num = extract_keywords_coord_from_dict(ori_traditional_txt, '型號/批號')  # 提取 '型號/批號' 的座標
+    coord_batch_num = extract_keywords_coord_from_dict(ori_traditional_txt, '批號')  # 提取 '型號/批號' 的座標
     coord_expiry = extract_keywords_coord_from_dict(ori_traditional_txt, '有效期')  # 提取 '有效期' 的座標
 
     # 分別提取 product, quantity, batch number, expiry date 的 ROI
@@ -64,17 +64,26 @@ def dksh_text_extractor_main(ori_traditional_txt, image, image_height, txt_extra
     roi_batch_num = dksh_extract_roi_batch_num(image, coord_batch_num, text_height_multiplier=6)
     roi_date = dksh_extract_roi_date(image, coord_batch_num, coord_expiry, text_height_multiplier=6)
 
-    # 將ROI做二次OCR
-    product_txt = txt_extract(roi_product, ocr_reader)
-    quantity_txt = txt_extract(roi_quantity, ocr_reader)
-    batch_num_txt = txt_extract(roi_batch_num, ocr_reader)
-    expiry_date_txt = txt_extract(roi_date, ocr_reader)
-    # 提取po_number
+    en_product_txt, en_product_txt_conf = extract_text_conf(txt_extract, roi_product, 0, ocr_reader)
+    cht_product_txt, cht_product_txt_conf = extract_text_conf(txt_extract, roi_product, 1, ocr_reader)
+    quantity_txt, quantity_txt_conf = extract_text_conf(txt_extract, roi_quantity, 0, ocr_reader)
+    batch_num_txt, batch_num_txt_conf = extract_text_conf(txt_extract, roi_batch_num, 1, ocr_reader)
+    expiry_date_txt, expiry_date_txt_conf = extract_text_conf(txt_extract, roi_date, 1, ocr_reader)
     po_number, po_number_conf = get_po_num(ori_traditional_txt, '請購單號')
 
-    print(f'po_number: {po_number}')
-    print(f'po_number_conf: {po_number_conf}')
-    print(f'product: {product_txt}')
-    print(f'quantity: {quantity_txt}')
-    print(f'batch_num: {batch_num_txt}')
-    print(f'expiry_date: {expiry_date_txt}')
+    result_dictionary = {
+        "name": en_product_txt,
+        "name_conf": en_product_txt_conf,
+        "cht_name": cht_product_txt,
+        "cht_name_conf": cht_product_txt_conf,
+        "qty": quantity_txt,
+        "qty_conf": quantity_txt_conf,
+        "batch_num": batch_num_txt,
+        "batch_num_conf": batch_num_txt_conf,
+        "expirydate": expiry_date_txt,
+        "expirydate_conf": expiry_date_txt_conf,
+        "po_num": po_number,
+        "po_num_conf": po_number_conf
+    }
+
+    return result_dictionary

@@ -39,13 +39,6 @@ root_logger.handlers = [stream_handler]
 werkzeug_logger = logging.getLogger('werkzeug')
 werkzeug_logger.setLevel(logging.DEBUG)
 
-keywords = [
-    "PONO",
-    "PRODUCT",
-    "QUANTITY",
-    "BATCH NUMBER",
-    "EXPIRYDATE"
-]
 
 pharma_company_set = {'大昌', '裕利', '和安', '中外'}
 
@@ -72,7 +65,6 @@ def po_vision_app():
 
         ocr_result = po_vision_main(
             cut_roi_from_image(image, y_top_ratio=0, y_bottom_ratio=0.5),
-            keywords,
             pharma_company_set
         )
 
@@ -85,7 +77,6 @@ def po_vision_app():
                 {
                     'GUID': guid,
                     'logs': log_contents,
-                    'op_keywords': (','.join(keywords)),
                     **ocr_result
                 }
             ],
@@ -105,9 +96,7 @@ def po_vision_app():
         error_response = {
             "Data": [
                 {
-                    'GUID': guid,
-                    'logs': log_contents,
-                    'op_keywords': (','.join(keywords))
+                    'logs': log_contents
                 }
             ],
             'Code': 200,

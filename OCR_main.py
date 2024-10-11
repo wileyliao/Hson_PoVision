@@ -62,13 +62,14 @@ def po_vision_main(image_path, pharma_company_set):
         return result_dict
 
     else:
-        common_text_extractor_main(ori_traditional_txt, image, image_height, txt_extract, ocr_reader)
-        return
+        result_dict = common_text_extractor_main(ori_traditional_txt, image, image_height, txt_extract, ocr_reader)
+        logging.info(f'Result :{result_dict}')
+        return result_dict
 
 
 if __name__ == '__main__':
     company_set = {'大昌', '裕利', '和安', '中外'}
 
-    print(po_vision_main('./test/11.jpg', company_set))
+    print(po_vision_main('./test/04.jpg', company_set))
 
 

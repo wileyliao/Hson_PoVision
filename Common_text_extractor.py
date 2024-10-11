@@ -76,6 +76,4 @@ def common_text_extractor_main(ori_traditional_txt, image, image_height, txt_ext
         # "po_num_conf": po_number_conf
     }
 
-    print(result_dictionary)
-
-    return
+    return result_dictionary

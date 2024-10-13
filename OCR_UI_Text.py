@@ -37,7 +37,7 @@ def process_ui_result(grouped_data, processor):
                 saved_dict['cht_name'] = ''
                 saved_dict['cht_name_conf'] = ''
 
-        elif group_name == 'quantity':
+        elif group_name == 'quantity' or '數量':
             # 提取數字
             if items:
                 for item in items:

@@ -1,5 +1,5 @@
 from flask import Flask, request, jsonify
-from OCR_img_utils import base64_decoder, cut_roi_from_image
+from OCR_img_utils import *
 from OCR_main import po_vision_main
 import logging
 import io
@@ -64,7 +64,7 @@ def po_vision_app():
         """處理前墜"""
 
         ocr_result = po_vision_main(
-            cut_roi_from_image(image, y_top_ratio=0, y_bottom_ratio=0.5),
+            cut_roi_by_ratio(image, y_top_ratio=0, y_bottom_ratio=0.5),
             pharma_company_set
         )
 

@@ -13,7 +13,7 @@ def base64_decoder(image_64):
 
 
 @error_handler
-def cut_roi_from_image(image, y_top_ratio, y_bottom_ratio):
+def cut_roi_by_ratio(image, y_top_ratio, y_bottom_ratio):
     # 獲取圖像的高度和寬度
     height, width, _ = image.shape
 

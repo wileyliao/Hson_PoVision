@@ -45,6 +45,8 @@ pharma_company_set = {'大昌', '裕利', '和安', '中外'}
 prefix = "data:image/jpeg;base64,"
 
 app = Flask(__name__)
+
+
 @app.route('/PO_Vision', methods = ['POST'])
 def po_vision_app():
     start_time = time.time()
@@ -56,17 +58,11 @@ def po_vision_app():
         guid = data.get('GUID')
         logging.info(f'Received api request: {guid}')
 
-        """處理前墜"""
-        base64_image = data.get('base64')
-        prefix_length = len(prefix)
-        clean_base64_image = base64_image[prefix_length:]
-        image = base64_decoder(clean_base64_image)
-        """處理前墜"""
+        # 處理前贅字樣
+        image = data.get('base64')[len(prefix):]
 
-        ocr_result = po_vision_main(
-            cut_roi_by_ratio(image, y_top_ratio=0, y_bottom_ratio=0.5),
-            pharma_company_set
-        )
+        # 請購單辨識
+        ocr_result = po_vision_main(image)
 
         end_time = time.time()
         time_taken = end_time - start_time

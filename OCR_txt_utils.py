@@ -37,9 +37,7 @@ class TextProcessor:
     @staticmethod
     def preprocess_text(text):
         """For match_keywords"""
-        # 替換 '/' 為空格
         text = text.replace('/', ' ')
-        # 將文本中的所有空白字符移除，並轉換為小寫
         process_text = re.sub(r'\s+', '', text).lower()
         # 將 "p0" 替換為 "po" 來處理 OCR 錯誤
         process_text = process_text.replace("p0", "po")
@@ -58,7 +56,7 @@ def match_keywords(keywords, data, processor):
                 # 在返回結果中，替換文本中的 'P0' 為 'PO'
                 matched_keywords[keyword] = {
                     **item,
-                    'text': processed_text.replace("p0", "po")  # 這裡對原始文本進行替換
+                    'text': processed_text
                 }
                 break
     return matched_keywords
@@ -89,3 +87,65 @@ def group_same_column_by_keywords(matched_keywords, data):
                 grouped_data[keyword].append(item)
     return grouped_data
 
+
+@error_handler
+def batch_num_checker(group_txt, batch_num_word):
+
+    # 提取 'batch number' 的第一個 value 的座標
+    batch_number_data = group_txt.get(batch_num_word, [])
+    if not batch_number_data:
+        print("找不到 'batch number' 資料")
+        return group_txt  # 如果找不到資料，返回原始的 param
+
+    # 取第一個 batch number 的座標
+    first_batch_number = batch_number_data[0]
+    first_coord = first_batch_number['coord']
+
+    # 計算 b1：最左側 + 字高的一半
+    left_x = first_coord[0][0]
+    top_y = first_coord[0][1]
+    bottom_y = first_coord[3][1]
+    height = bottom_y - top_y
+    b1 = left_x - (height / 2)
+
+    # 更新批號數據
+    updated_batch_number_data = []
+
+    for value in batch_number_data:
+        text = value['text']
+        text_left_x = value['coord'][0][0]
+        text_right_x = value['coord'][1][0]
+
+        # 如果文字超出 b1，則進行裁剪
+        if text_left_x < b1:
+            text_length = len(text)
+            char_width = (text_right_x - text_left_x) / text_length
+            crop_position = int((b1 - text_left_x) / char_width)
+            cropped_text = text[crop_position:]
+
+            # 計算裁剪後的座標
+            new_left_x = text_left_x + crop_position * char_width
+            updated_coords = [
+                [new_left_x, value['coord'][0][1]],
+                [text_right_x, value['coord'][1][1]],
+                [text_right_x, value['coord'][2][1]],
+                [new_left_x, value['coord'][3][1]]
+            ]
+
+            # 更新字典的文字與座標
+            updated_value = {
+                'text': cropped_text,
+                'coord': updated_coords,
+                'conf': value['conf']
+            }
+        else:
+            # 沒有超出範圍的保持原樣
+            updated_value = value
+
+        # 添加更新後的 value 到列表中
+        updated_batch_number_data.append(updated_value)
+
+    # 更新原始 param 結構中的 'BATCH NUMBER'
+    group_txt['BATCH NUMBER'] = updated_batch_number_data
+
+    return group_txt

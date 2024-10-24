@@ -89,13 +89,13 @@ def group_same_column_by_keywords(matched_keywords, data):
 
 
 @error_handler
-def batch_num_checker(group_txt, batch_num_word):
+def batch_num_extractor(text_dict, batch_num_word):
 
     # 提取 'batch number' 的第一個 value 的座標
-    batch_number_data = group_txt.get(batch_num_word, [])
+    batch_number_data = text_dict.get(batch_num_word, [])
     if not batch_number_data:
         print("找不到 'batch number' 資料")
-        return group_txt  # 如果找不到資料，返回原始的 param
+        return text_dict  # 如果找不到資料，返回原始的 param
 
     # 取第一個 batch number 的座標
     first_batch_number = batch_number_data[0]
@@ -146,6 +146,22 @@ def batch_num_checker(group_txt, batch_num_word):
         updated_batch_number_data.append(updated_value)
 
     # 更新原始 param 結構中的 'BATCH NUMBER'
-    group_txt['BATCH NUMBER'] = updated_batch_number_data
+    text_dict['BATCH NUMBER'] = updated_batch_number_data
 
-    return group_txt
+    return text_dict
+
+
+def po_number_extractor(text_dict, po_keyword):
+    pass
+
+
+def product_info_extractor(text_dict, product_keyword):
+    pass
+
+
+def quantity_extractor(text_dict, quantity_keyword):
+    pass
+
+
+def expiry_date_extractor(text_dict, expiry_date_keyword):
+    pass

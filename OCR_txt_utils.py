@@ -3,6 +3,18 @@ import opencc
 from Error_handler import error_handler
 
 
+def txt_extract(img, reader):
+    results = reader.ocr(img, cls=True)
+    extracted_data = []
+    for bbox, (text, score) in results[0]:
+        extracted_data.append({
+            "text": text,
+            "coord": bbox,
+            "conf": score
+        })
+    return extracted_data
+
+
 class TextProcessor:
     def __init__(self):
         self.converter = opencc.OpenCC('s2t')
@@ -44,22 +56,29 @@ class TextProcessor:
         return process_text
 
 
+
+
 @error_handler
-def match_keywords(keywords, data, processor):
-    matched_keywords = {}
-    for keyword in keywords:
-        for item in data:
-            # 假設 preprocess_text 是用來處理文本的函數
-            processed_keyword = processor.preprocess_text(keyword)
-            processed_text = processor.preprocess_text(item['text'])
-            if processed_keyword in processed_text:
-                # 在返回結果中，替換文本中的 'P0' 為 'PO'
-                matched_keywords[keyword] = {
-                    **item,
-                    'text': processed_text
-                }
+def match_keywords(keyword_mapping, text_dict, processor):
+    matched_keywords_dict = {}
+    for main_keyword, info in keyword_mapping.items():
+        # 使用新字典結構中的 "keywords" 列表
+        for keyword in info["keywords"]:
+            for item in text_dict:
+                # 假設 preprocess_text 是用來處理文本的函數
+                processed_keyword = processor.preprocess_text(keyword)
+                processed_text = processor.preprocess_text(item['text'])
+                if processed_keyword in processed_text:
+                    # 在返回結果中，替換文本中的 'P0' 為 'PO'
+                    matched_keywords_dict[main_keyword] = {
+                        **item,
+                        'text': processed_text
+                    }
+                    break
+            # 如果已找到匹配的主關鍵字，跳出內層迴圈
+            if main_keyword in matched_keywords_dict:
                 break
-    return matched_keywords
+    return matched_keywords_dict
 
 
 @error_handler
@@ -87,81 +106,3 @@ def group_same_column_by_keywords(matched_keywords, data):
                 grouped_data[keyword].append(item)
     return grouped_data
 
-
-@error_handler
-def batch_num_extractor(text_dict, batch_num_word):
-
-    # 提取 'batch number' 的第一個 value 的座標
-    batch_number_data = text_dict.get(batch_num_word, [])
-    if not batch_number_data:
-        print("找不到 'batch number' 資料")
-        return text_dict  # 如果找不到資料，返回原始的 param
-
-    # 取第一個 batch number 的座標
-    first_batch_number = batch_number_data[0]
-    first_coord = first_batch_number['coord']
-
-    # 計算 b1：最左側 + 字高的一半
-    left_x = first_coord[0][0]
-    top_y = first_coord[0][1]
-    bottom_y = first_coord[3][1]
-    height = bottom_y - top_y
-    b1 = left_x - (height / 2)
-
-    # 更新批號數據
-    updated_batch_number_data = []
-
-    for value in batch_number_data:
-        text = value['text']
-        text_left_x = value['coord'][0][0]
-        text_right_x = value['coord'][1][0]
-
-        # 如果文字超出 b1，則進行裁剪
-        if text_left_x < b1:
-            text_length = len(text)
-            char_width = (text_right_x - text_left_x) / text_length
-            crop_position = int((b1 - text_left_x) / char_width)
-            cropped_text = text[crop_position:]
-
-            # 計算裁剪後的座標
-            new_left_x = text_left_x + crop_position * char_width
-            updated_coords = [
-                [new_left_x, value['coord'][0][1]],
-                [text_right_x, value['coord'][1][1]],
-                [text_right_x, value['coord'][2][1]],
-                [new_left_x, value['coord'][3][1]]
-            ]
-
-            # 更新字典的文字與座標
-            updated_value = {
-                'text': cropped_text,
-                'coord': updated_coords,
-                'conf': value['conf']
-            }
-        else:
-            # 沒有超出範圍的保持原樣
-            updated_value = value
-
-        # 添加更新後的 value 到列表中
-        updated_batch_number_data.append(updated_value)
-
-    # 更新原始 param 結構中的 'BATCH NUMBER'
-    text_dict['BATCH NUMBER'] = updated_batch_number_data
-
-    return text_dict
-
-
-def po_number_extractor(text_dict, po_keyword):
-    pass
-
-
-def product_info_extractor(text_dict, product_keyword):
-    pass
-
-
-def quantity_extractor(text_dict, quantity_keyword):
-    pass
-
-
-def expiry_date_extractor(text_dict, expiry_date_keyword):
-    pass

@@ -12,6 +12,14 @@ def base64_decoder(image_64):
     return image
 
 
+def image_to_base64(image_path):
+    # 讀取圖片並轉換為 Base64 字串
+    with open(image_path, "rb") as image_file:
+        # 將圖片內容編碼為 Base64
+        base64_string = base64.b64encode(image_file.read()).decode("utf-8")
+    return base64_string
+
+
 @error_handler
 def cut_roi_by_ratio(image, y_top_ratio, y_bottom_ratio):
     # 獲取圖像的高度和寬度
@@ -25,3 +33,9 @@ def cut_roi_by_ratio(image, y_top_ratio, y_bottom_ratio):
     roi_image = image[y1:y2, 0:width]
 
     return roi_image
+
+
+if __name__ == "__main__":
+    image_p = './test/01.jpg'
+    bs64_tring = image_to_base64(image_p)
+    print(bs64_tring)

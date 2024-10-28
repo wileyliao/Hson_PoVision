@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify
-from OCR_img_utils import *
 from OCR_main import po_vision_main
+from OCR_img_utils import base64_decoder
 import logging
 import io
 import time
@@ -47,7 +47,7 @@ prefix = "data:image/jpeg;base64,"
 app = Flask(__name__)
 
 
-@app.route('/PO_Vision', methods = ['POST'])
+@app.route('/PO_Vision', methods=['POST'])
 def po_vision_app():
     start_time = time.time()
     try:
@@ -59,7 +59,7 @@ def po_vision_app():
         logging.info(f'Received api request: {guid}')
 
         # 處理前贅字樣
-        image = data.get('base64')[len(prefix):]
+        image = base64_decoder(data.get('base64')[len(prefix):])
 
         # 請購單辨識
         ocr_result = po_vision_main(image)

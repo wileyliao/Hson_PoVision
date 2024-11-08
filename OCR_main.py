@@ -3,9 +3,7 @@ from OCR_txt_utils import *
 from OCR_img_utils import *
 from OCR_ui_exactors import *
 from Company_Checker import company_checker_main
-import logging
 import cv2
-from OCR_UI_Text import process_ui_result
 import json
 
 
@@ -47,9 +45,6 @@ def po_vision_main(image_path):
 
     aligned_same_column = group_same_column_by_keywords(get_keyword_in_image, image_common_text_traditional)
     merge_same_row_from_aligned = merge_same_row(aligned_same_column)
-    print(merge_same_row_from_aligned)
-
-
 
     # 提取請購單號
     if company == "大昌":

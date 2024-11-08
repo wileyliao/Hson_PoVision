@@ -36,6 +36,6 @@ def cut_roi_by_ratio(image, y_top_ratio, y_bottom_ratio):
 
 
 if __name__ == "__main__":
-    image_p = './test/01.jpg'
+    image_p = 'output_image.png'
     bs64_tring = image_to_base64(image_p)
     print(bs64_tring)

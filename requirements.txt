@@ -5,3 +5,4 @@ paddlepaddle==2.6.1
 OpenCC==1.1.7
 wfastcgi==3.0.0
 opencv-python==4.6.0.66
+requests==2.32.3

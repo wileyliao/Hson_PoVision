@@ -1,4 +1,6 @@
 from flask import Flask, request, jsonify
+from future.backports.http.cookiejar import debug
+
 from OCR_main import po_vision_main
 from OCR_img_utils import base64_decoder
 import logging
@@ -105,4 +107,4 @@ def po_vision_app():
 
 
 if __name__ == '__main__':
-    app.run(port=3010)
+    app.run(port=3010, debug=True)

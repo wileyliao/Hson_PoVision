@@ -29,7 +29,7 @@ def batch_num_extractor(text_dict, batch_num_word):
     else:
         cropped_text = batch_num_text
 
-    return cropped_text, batch_num_data[1]['conf']
+    return cropped_text, batch_num_data[1]['conf'], batch_num_data[1]['coord']
 
 
 @error_handler
@@ -38,7 +38,7 @@ def po_number_extractor_en(text_dict, po_keyword, processor):
     po_num_text = text_dict.get(po_keyword, [])[0]['text']
     processed_text = processor.extract_after_no(po_num_text)
 
-    return processed_text, text_dict.get(po_keyword, [])[0]['conf']
+    return processed_text, text_dict.get(po_keyword, [])[0]['conf'], text_dict.get(po_keyword, [])[0]['coord']
 
 
 @error_handler
@@ -77,7 +77,7 @@ def po_number_extractor_cht(text_dict, po_keyword):
         if abs(item_center_y - po_center_y) <= y_threshold:
             right_boxes.append(item)  # 加入符合條件的右側文字框
 
-    return right_boxes[0]['text'], right_boxes[0]['conf']
+    return right_boxes[0]['text'], right_boxes[0]['conf'], right_boxes[0]['coord']
 
 
 @error_handler
@@ -91,8 +91,9 @@ def product_info_extractor_en_first(text_dict, product_keyword):
     # 直接提取文字和置信度到列表中
     text_list = [product_data[1]['text'], product_data[2]['text']]
     conf_list = [product_data[1]['conf'], product_data[2]['conf']]
+    coord_list = [product_data[1]['coord'], product_data[2]['coord']]
 
-    return text_list, conf_list
+    return text_list, conf_list, coord_list
 
 
 @error_handler
@@ -106,29 +107,33 @@ def product_info_extractor_cht_first(text_dict, product_keyword):
     # 直接提取文字和置信度到列表中
     text_list = [product_data[2]['text'], product_data[1]['text']]
     conf_list = [product_data[2]['conf'], product_data[1]['conf']]
+    coord_list = [product_data[2]['coord'], product_data[1]['coord']]
 
-    return text_list, conf_list
+    return text_list, conf_list, coord_list
 
 
 @error_handler
 def quantity_extractor(text_dict, quantity_keyword):
     quantity_text = text_dict.get(quantity_keyword, [])[-1]['text']
     quantity_text_conf = text_dict.get(quantity_keyword, [])[-1]['conf']
+    quantity_text_coord = text_dict.get(quantity_keyword, [])[-1]['coord']
 
-    return quantity_text, quantity_text_conf
+    return quantity_text, quantity_text_conf, quantity_text_coord
 
 
 @error_handler
 def expiry_date_extractor_en(text_dict, expiry_date_keyword):
     expiry_date_text = text_dict.get(expiry_date_keyword, [])[1]['text']
     expiry_date_text_conf = text_dict.get(expiry_date_keyword, [])[1]['conf']
+    expiry_date_text_coord = text_dict.get(expiry_date_keyword, [])[1]['coord']
 
-    return expiry_date_text, expiry_date_text_conf
+    return expiry_date_text, expiry_date_text_conf, expiry_date_text_coord
 
 
 @error_handler
 def expiry_date_extractor_cht(text_dict, expiry_date_keyword):
     expiry_date_text = text_dict.get(expiry_date_keyword, [])[-1]['text']
     expiry_date_text_conf = text_dict.get(expiry_date_keyword, [])[-1]['conf']
+    expiry_date_text_coord = text_dict.get(expiry_date_keyword, [])[-1]['coord']
 
-    return expiry_date_text, expiry_date_text_conf
+    return expiry_date_text, expiry_date_text_conf, expiry_date_text_coord

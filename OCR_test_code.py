@@ -15,7 +15,7 @@ def encode_image_to_base64(image_path):
 url = "http://localhost:3010/PO_Vision"  # 替換為您的 API URL
 
 # 編碼圖片並建立請求資料格式
-image_path = r"Z:\PO_Vision\222226.jpg"  # 替換為您的圖片路徑
+image_path = r"01_DaChan00.jpg"  # 替換為您的圖片路徑
 base64_string = encode_image_to_base64(image_path)
 guid = "0030679"  # 替換為您的 GUID
 
@@ -57,7 +57,7 @@ for item in response_data["Data"]:
             cv2.polylines(image, [coord_array], isClosed=True, color=(0, 255, 0), thickness=3)
 
 cv2.imwrite("test.jpg", image)
-cv2.imshow("output", image)
 
-cv2.waitKey(0)
-cv2.destroyAllWindows()
+# cv2.imshow("output", image)
+# cv2.waitKey(0)
+# cv2.destroyAllWindows()

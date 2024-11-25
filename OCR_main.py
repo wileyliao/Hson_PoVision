@@ -90,7 +90,7 @@ def po_vision_main(image_path):
 
     result_dict = {
         "po_num": po_num,
-        "po_num_conf": po_num_conf,
+        "po_num_conf": str(po_num_conf),
         "po_num_coord": ";".join(
             [f"{int(x)},{int(y)}" for x, y in (
                 [[x, y + int(4032 * 0.1)] for x, y in po_num_coord]
@@ -98,7 +98,7 @@ def po_vision_main(image_path):
         ),
 
         "name": en_name,
-        "name_conf": en_name_conf,
+        "name_conf": str(en_name_conf),
         "name_coord": ";".join(
             [f"{int(x)},{int(y)}" for x, y in (
                 [[x, y + int(4032 * 0.1)] for x, y in en_name_coord]
@@ -106,7 +106,7 @@ def po_vision_main(image_path):
         ),
 
         "cht_name": cht_name,
-        "cht_name_conf": cht_name_conf,
+        "cht_name_conf": str(cht_name_conf),
         "cht_name_coord": ";".join(
             [f"{int(x)},{int(y)}" for x, y in (
                 [[x, y + int(4032 * 0.1)] for x, y in cht_name_coord]
@@ -114,7 +114,7 @@ def po_vision_main(image_path):
         ),
 
         "qty": qty,
-        "qty_conf": qty_conf,
+        "qty_conf": str(qty_conf),
         "qty_coord": ";".join(
             [f"{int(x)},{int(y)}" for x, y in (
                 [[x, y + int(4032 * 0.1)] for x, y in qty_coord]
@@ -122,7 +122,7 @@ def po_vision_main(image_path):
         ),
 
         "batch_num": batch_num,
-        "batch_num_conf": batch_num_conf,
+        "batch_num_conf": str(batch_num_conf),
         "batch_num_coord": ";".join(
             [f"{int(x)},{int(y)}" for x, y in (
                 [[x, y + int(4032 * 0.1)] for x, y in batch_num_coord]
@@ -130,7 +130,7 @@ def po_vision_main(image_path):
         ),
 
         "expirydate": expiry_date,
-        "expirydate_conf": expiry_date_conf,
+        "expirydate_conf": str(expiry_date_conf),
         "expirydate_coord": ";".join(
             [f"{int(x)},{int(y)}" for x, y in (
                 [[x, y + int(4032 * 0.1)] for x, y in expiry_date_coord]

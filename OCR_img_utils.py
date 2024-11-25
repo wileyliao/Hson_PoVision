@@ -1,10 +1,8 @@
 import cv2
 import base64
 import numpy as np
-from Error_handler import error_handler
 
 
-@error_handler
 def base64_decoder(image_64):
     decode = base64.b64decode(image_64)
     image_array = np.frombuffer(decode, np.uint8)
@@ -20,7 +18,6 @@ def image_to_base64(image_path):
     return base64_string
 
 
-@error_handler
 def cut_roi_by_ratio(image, y_top_ratio, y_bottom_ratio):
     # 獲取圖像的高度和寬度
     height, width, _ = image.shape

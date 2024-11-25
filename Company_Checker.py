@@ -1,6 +1,7 @@
 from paddleocr import PaddleOCR
 from OCR_txt_utils import TextProcessor
 from OCR_img_utils import *
+from Error_handler import error_handler
 
 company_set = {'大昌', '裕利', '和安', '中外'}
 
@@ -34,6 +35,7 @@ def find_company_in_top_n(data, top_n=5, pharma_company_set=None):
     return pharma_company
 
 
+@error_handler
 def company_checker_main(image, reader, processor):
 
     image_company_info = cut_roi_by_ratio(image, 0, 0.15)

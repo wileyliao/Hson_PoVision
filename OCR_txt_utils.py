@@ -57,8 +57,6 @@ class TextProcessor:
         return process_text
 
 
-
-
 @error_handler
 def match_keywords(keyword_mapping, text_dict, processor):
     matched_keywords_dict = {}
@@ -108,6 +106,7 @@ def group_same_column_by_keywords(matched_keywords, text_dict):
     return grouped_data
 
 
+@error_handler
 def merge_same_row(data):
     updated_data = {}
 

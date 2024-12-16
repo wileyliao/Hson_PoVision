@@ -94,6 +94,13 @@ def group_same_column_by_keywords(matched_keywords, text_dict):
         keyword_x_max = max(point[0] for point in info['coord'])
         keyword_y_center = sum(point[1] for point in info['coord']) / 4  # 計算關鍵字框的中心 y 座標
 
+        # 計算目前字典中關鍵字組的最底部 y 座標
+        current_bottom_y = max(max(point[1] for point in entry['coord']) for entry in grouped_data[keyword])
+
+        # 取關鍵字框高度作為基準
+        keyword_height = max(point[1] for point in info['coord']) - min(point[1] for point in info['coord'])
+        max_y_distance = current_bottom_y + keyword_height * 2
+
         for item in text_dict:
             if item in grouped_data[keyword]:
                 continue  # 跳過已經加入的關鍵字本身
@@ -101,8 +108,10 @@ def group_same_column_by_keywords(matched_keywords, text_dict):
             item_x_max = max(point[0] for point in item['coord'])
             item_y_center = sum(point[1] for point in item['coord']) / 4  # 計算文本框的中心 y 座標
             # 檢查是否有 x 軸範圍的重疊並且文本框在關鍵字框下方
-            if keyword_x_min <= item_x_max and item_x_min <= keyword_x_max and item_y_center > keyword_y_center:
-                grouped_data[keyword].append(item)
+            if keyword_x_min <= item_x_max and item_x_min <= keyword_x_max:
+                # 增加 y 軸距離判斷，確保文本框距離不超過 max_y_distance
+                if item_y_center > keyword_y_center and item_y_center <= max_y_distance:
+                    grouped_data[keyword].append(item)
     return grouped_data
 
 

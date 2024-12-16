@@ -12,11 +12,14 @@ def encode_image_to_base64(image_path):
     return f"data:image/jpeg;base64,{b64_string}"
 
 # 設定要傳送的 API URL
-url = "http://localhost:3010/PO_Vision"  # 替換為您的 API URL
+url = "http://localhost:3050/PO_Vision"  # 替換為您的 API URL
 
 # 編碼圖片並建立請求資料格式
-image_path = r"01_DaChan00.jpg"  # 替換為您的圖片路徑
+image_path = r"C:\python\Hson_PoVision\rotate_img\09.jpg"  # 替換為您的圖片路徑
 base64_string = encode_image_to_base64(image_path)
+with open('encoded_image.txt', 'w') as text_file:
+    text_file.write(base64_string)
+
 guid = "0030679"  # 替換為您的 GUID
 
 payload = {

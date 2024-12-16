@@ -36,13 +36,13 @@ def po_vision_main(image_path):
     # image processing
     image_height, image_width, _ = image_path.shape
 
-    # Check Company Info
-    company = company_checker_main(image_path, ocr_reader, processor)
-    logging.info(f'Company: {company}')
-
-    image_common = cut_roi_by_ratio(image_path, 0.1, 0.4)
-    image_common_text_traditional = processor.convert_to_traditional(txt_extract(image_common, ocr_reader))
+    # image_common = cut_roi_by_ratio(image_path, 0.1, 0.4)
+    image_common_text_traditional = processor.convert_to_traditional(txt_extract(image_path, ocr_reader))
     logging.info(f'origin text: {image_common_text_traditional}')
+
+    # Check Company Info
+    company = company_checker_main(image_common_text_traditional)
+    logging.info(f'Company: {company}')
 
     get_keyword_in_image = match_keywords(keyword_mapping_dict, image_common_text_traditional, processor)
     logging.info(f"Keywords position: {get_keyword_in_image}")
@@ -92,49 +92,37 @@ def po_vision_main(image_path):
         "po_num": po_num,
         "po_num_conf": str(po_num_conf),
         "po_num_coord": ";".join(
-            [f"{int(x)},{int(y)}" for x, y in (
-                [[x, y + int(4032 * 0.1)] for x, y in po_num_coord]
-            )]
+            [f"{int(x)},{int(y)}" for x, y in po_num_coord]
         ),
 
         "name": en_name,
         "name_conf": str(en_name_conf),
         "name_coord": ";".join(
-            [f"{int(x)},{int(y)}" for x, y in (
-                [[x, y + int(4032 * 0.1)] for x, y in en_name_coord]
-            )]
+            [f"{int(x)},{int(y)}" for x, y in en_name_coord]
         ),
 
         "cht_name": cht_name,
         "cht_name_conf": str(cht_name_conf),
         "cht_name_coord": ";".join(
-            [f"{int(x)},{int(y)}" for x, y in (
-                [[x, y + int(4032 * 0.1)] for x, y in cht_name_coord]
-            )]
+            [f"{int(x)},{int(y)}" for x, y in cht_name_coord]
         ),
 
         "qty": qty,
         "qty_conf": str(qty_conf),
         "qty_coord": ";".join(
-            [f"{int(x)},{int(y)}" for x, y in (
-                [[x, y + int(4032 * 0.1)] for x, y in qty_coord]
-            )]
+            [f"{int(x)},{int(y)}" for x, y in qty_coord]
         ),
 
         "batch_num": batch_num,
         "batch_num_conf": str(batch_num_conf),
         "batch_num_coord": ";".join(
-            [f"{int(x)},{int(y)}" for x, y in (
-                [[x, y + int(4032 * 0.1)] for x, y in batch_num_coord]
-            )]
+            [f"{int(x)},{int(y)}" for x, y in batch_num_coord]
         ),
 
         "expirydate": expiry_date,
         "expirydate_conf": str(expiry_date_conf),
         "expirydate_coord": ";".join(
-            [f"{int(x)},{int(y)}" for x, y in (
-                [[x, y + int(4032 * 0.1)] for x, y in expiry_date_coord]
-            )]
+            [f"{int(x)},{int(y)}" for x, y in expiry_date_coord]
         )
     }
 
@@ -143,7 +131,7 @@ def po_vision_main(image_path):
 
 
 if __name__ == '__main__':
-    image_p = './test/01.jpg'
+    image_p = './rotate/01.jpg'
     # image_p = 'output_image.png'
     image = cv2.imread(image_p)
     print(json.dumps(po_vision_main(image), indent=4, ensure_ascii=False))

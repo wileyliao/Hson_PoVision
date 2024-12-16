@@ -7,6 +7,11 @@ def base64_decoder(image_64):
     decode = base64.b64decode(image_64)
     image_array = np.frombuffer(decode, np.uint8)
     image = cv2.imdecode(image_array, cv2.IMREAD_COLOR)
+
+    image = cv2.rotate(image, cv2.ROTATE_90_COUNTERCLOCKWISE)
+    # cv2.imshow("image", image)
+    # cv2.waitKey(0)
+    # cv2.destroyAllWindows()
     return image
 
 

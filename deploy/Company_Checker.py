@@ -23,6 +23,11 @@ def find_company_in_top_n(data, pharma_company_set=None):
     coord = None
 
     for i, item in enumerate(data):
+        text = item['text']
+        if "登" in text and "業" in text:
+            pharma_company = "登詮"
+            coord = item['coord']
+            break
         # 遍歷集合，檢查集合中的公司名稱是否出現在 item['text'] 中
         for company in pharma_company_set:
             if company in item['text']:

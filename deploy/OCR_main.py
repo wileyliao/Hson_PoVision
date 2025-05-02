@@ -13,6 +13,8 @@ from sub_main_dls import handle_dls
 from sub_main_yonfu import handle_yufu
 from sub_main_pingting import handle_pingting
 from sub_main_pbf import handle_pbf
+from sub_main_dq import handle_dq
+
 
 
 from PIL import Image
@@ -99,6 +101,9 @@ def po_vision_main(image):
         result = handle_pingting(image_common_text_traditional, merge_same_row_from_aligned)
     elif company == "齡富":
         result = handle_pbf(image_common_text_traditional, merge_same_row_from_aligned)
+    elif company == "登詮":
+        result = handle_dq(image_common_text_traditional)
+
 
     else:
         result = {"po_num": ("", 0, [[0, 0]] * 4), "expiry_date": ("", 0, [[0, 0]] * 4), "batch_num": ("", 0, [[0, 0]] * 4)}

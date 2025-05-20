@@ -1,8 +1,6 @@
 from paddleocr import PaddleOCR
 from OCR_txt_utils import *
-from OCR_ui_exactors import *
 from OCR_company_checker import company_checker_main
-from OCR_error_handler import safe_extractor
 from sub_main_asia import handle_asia
 from sub_main_chugai import handle_chugai
 from sub_main_dksh import handle_dksh
@@ -14,6 +12,7 @@ from sub_main_yonfu import handle_yufu
 from sub_main_pingting import handle_pingting
 from sub_main_pbf import handle_pbf
 from sub_main_dq import handle_dq
+from sub_main_cenra import handle_cenra
 
 
 
@@ -103,32 +102,37 @@ def po_vision_main(image):
         result = handle_pbf(image_common_text_traditional, merge_same_row_from_aligned)
     elif company == "登詮":
         result = handle_dq(image_common_text_traditional)
-
-
+    elif company == "CENRA":
+        result, flag = handle_cenra(merge_same_row_from_aligned, image_common_text_traditional, degree)
     else:
         result = {"po_num": ("", 0, [[0, 0]] * 4), "expiry_date": ("", 0, [[0, 0]] * 4), "batch_num": ("", 0, [[0, 0]] * 4)}
 
-    po_num, po_num_conf, po_num_coord = result["po_num"]
-    expiry_date, expiry_date_conf, expiry_date_coord = result["expiry_date"]
-    batch_num, batch_num_conf, batch_num_coord = result["batch_num"]
+
+    result_list = []
+    for results in result:
+        po_num, po_num_conf, po_num_coord = results["po_num"]
+        expiry_date, expiry_date_conf, expiry_date_coord = results["expiry_date"]
+        batch_num, batch_num_conf, batch_num_coord = results["batch_num"]
+        result_list.append({
+            "po_num": po_num,
+            "po_num_conf": str(po_num_conf),
+            "po_num_coord": ";".join([f"{int(x)},{int(y)}" for x, y in po_num_coord]),
+            "batch_num": batch_num,
+            "batch_num_conf": str(batch_num_conf),
+            "batch_num_coord": ";".join([f"{int(x)},{int(y)}" for x, y in batch_num_coord]),
+            "expirydate": expiry_date,
+            "expirydate_conf": str(expiry_date_conf),
+            "expirydate_coord": ";".join([f"{int(x)},{int(y)}" for x, y in expiry_date_coord])
+        })
+        print(result_list)
+
 
     batch_expiry_bool = not (batch_num == "" or expiry_date == "")
 
-    result_dict = {
-        "po_num": po_num,
-        "po_num_conf": str(po_num_conf),
-        "po_num_coord": ";".join([f"{int(x)},{int(y)}" for x, y in po_num_coord]),
-        "batch_num": batch_num,
-        "batch_num_conf": str(batch_num_conf),
-        "batch_num_coord": ";".join([f"{int(x)},{int(y)}" for x, y in batch_num_coord]),
-        "expirydate": expiry_date,
-        "expirydate_conf": str(expiry_date_conf),
-        "expirydate_coord": ";".join([f"{int(x)},{int(y)}" for x, y in expiry_date_coord]),
-        "degree": degree
-    }
 
     logging.info("Result done")
-    return result_dict, str(batch_expiry_bool)
+    print(result_list)
+    return result_list, str(batch_expiry_bool), degree
 
 
 if __name__ == '__main__':

@@ -5,8 +5,8 @@ def handle_yuli(structured_data):
     expiry_date, expiry_date_conf, expiry_date_coord = extract_expiry_date(structured_data)
     batch_num, batch_num_conf, batch_num_coord = extract_batch_num(structured_data, expiry_date_coord)
 
-    return {
+    return [{
         "po_num": (po_num, po_num_conf, po_num_coord),
         "expiry_date": (expiry_date, expiry_date_conf, expiry_date_coord),
         "batch_num": (batch_num, batch_num_conf, batch_num_coord)
-    }
+    }]

@@ -21,6 +21,8 @@ import cv2
 import numpy as np
 import json
 import logging
+from functools import reduce
+import operator
 
 keyword_mapping_dict = {
     "PONO": {"keywords": ["PONO", "請購單號", "請購", "交貨"]},
@@ -109,6 +111,7 @@ def po_vision_main(image):
 
 
     result_list = []
+    batch_expiry_bool_operator = [1]
     for results in result:
         po_num, po_num_conf, po_num_coord = results["po_num"]
         expiry_date, expiry_date_conf, expiry_date_coord = results["expiry_date"]
@@ -125,13 +128,17 @@ def po_vision_main(image):
             "expirydate_coord": ";".join([f"{int(x)},{int(y)}" for x, y in expiry_date_coord])
         })
         print(result_list)
+        if not (batch_num == "" or expiry_date == ""):
+            batch_expiry_bool_operator.append(1)
+        else:
+            batch_expiry_bool_operator.append(0)
 
 
-    batch_expiry_bool = not (batch_num == "" or expiry_date == "")
-
+    batch_expiry_bool = reduce(operator.mul, batch_expiry_bool_operator) == 1
+    print(batch_expiry_bool)
 
     logging.info("Result done")
-    print(result_list)
+
     return result_list, str(batch_expiry_bool), degree
 
 

@@ -1,7 +1,7 @@
 from paddleocr import PaddleOCR
 from OCR_txt_utils import TextProcessor
 from OCR_img_utils import *
-from Error_handler import error_handler
+from OCR_error_handler import error_handler
 
 company_set = {'大昌', '裕利', '和安', '中外', '久裕', '亞洲', '大隆', '永福', '平廷', '齡富'}
 

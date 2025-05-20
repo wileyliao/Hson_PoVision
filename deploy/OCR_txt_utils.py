@@ -1,7 +1,7 @@
 import re
 import opencc
 from statistics import mean
-from Error_handler import error_handler
+from OCR_error_handler import error_handler
 
 @error_handler
 def txt_extract(img, reader):

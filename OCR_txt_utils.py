@@ -5,7 +5,7 @@ from OCR_error_handler import error_handler
 
 @error_handler
 def txt_extract(img, reader):
-    results = reader.ocr(img, cls=True)
+    results = reader.ocr(img)
     extracted_data = []
     for bbox, (text, score) in results[0]:
         extracted_data.append({

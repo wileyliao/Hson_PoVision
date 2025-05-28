@@ -32,11 +32,12 @@ keyword_mapping_dict = {
     "EXPIRY DATE": {"keywords": ["EXPIRY DATE", "EXPIRY", "效期"]}
 }
 
+ocr_reader = PaddleOCR(lang='ch', device='gpu:0')
 
 def po_vision_main(image):
     if isinstance(image, str):
         image = cv2.imdecode(np.fromfile(image, dtype=np.uint8), cv2.IMREAD_COLOR)
-    ocr_reader = PaddleOCR(use_angle_cls=True, lang='ch')
+
     processor = TextProcessor()
 
     # ✅ 用 PIL 開圖（支援中文路徑）
@@ -97,7 +98,7 @@ def po_vision_main(image):
     elif company == "大隆":
         result = handle_dls(image_common_text_traditional, merge_same_row_from_aligned)
     elif company == "永福":
-        result = handle_yufu(image_common_text_traditional, "temp_rotated.jpg")
+        result = handle_yufu(image_common_text_traditional, "temp_rotated.jpg", ocr_reader)
     elif company == "平廷":
         result = handle_pingting(image_common_text_traditional, merge_same_row_from_aligned)
     elif company == "齡富":
@@ -135,13 +136,11 @@ def po_vision_main(image):
 
 
     batch_expiry_bool = reduce(operator.mul, batch_expiry_bool_operator) == 1
-    print(batch_expiry_bool)
-
     logging.info("Result done")
 
     return result_list, str(batch_expiry_bool), degree
 
 
 if __name__ == '__main__':
-    image_p = r'po_vision_img\po_vision\永福\yf_01.jpg'
+    image_p = r"C:\Users\Administrator\Desktop\yf_01.jpg"
     print(json.dumps(po_vision_main(image_p), indent=4, ensure_ascii=False))

@@ -19,9 +19,8 @@ def extract_po_num_yufu(text_info):
 
 
 # --- 抓批號：找 "批號" 關鍵字下方框，並排除前面產品名 ---
-def extract_batch_num_yufu(text_info, image_path):
+def extract_batch_num_yufu(text_info, image_path, ocr_model):
     try:
-        ocr_model = PaddleOCR(use_angle_cls=True, lang='ch')
 
         # Step 1: 找包含 "英文" 和 "保碼" 的欄位框
         eng_box = next((item for item in text_info if "英文" in item["text"]), None)
@@ -31,13 +30,20 @@ def extract_batch_num_yufu(text_info, image_path):
             print("[DEBUG] 找不到『英文』或『保碼』欄位")
             return "", 0, [[0, 0], [0, 0], [0, 0], [0, 0]]
 
-        x1 = eng_box["coord"][0][0]  # 左側
-        x2 = nhicode_box["coord"][1][0]  # 右側
+
+        xs = [pt[0] for pt in eng_box["coord"]]
+        ys = [pt[1] for pt in eng_box["coord"]]
+
+        x1 = min(xs)
+        y_top = min(ys)
+        y_bottom = max(ys) + 120
+
+        # 對 nhicode_box 也做同樣處理
+        x2 = max([pt[0] for pt in nhicode_box["coord"]])
+
         x_mid = (x1 + x2) / 2
         x_65 = x1 + (x2 - x1) * 0.65
 
-        y_top = eng_box["coord"][0][1]
-        y_bottom = eng_box["coord"][2][1] + 120  # 延伸往下抓內容
 
         print(f"[DEBUG] x1={x1}, x2={x2}, x_mid={x_mid}, x_65={x_65}")
         print(f"[DEBUG] y_top={y_top}, y_bottom={y_bottom}")
@@ -48,17 +54,20 @@ def extract_batch_num_yufu(text_info, image_path):
         offset_x, offset_y = crop_box[0], crop_box[1]
         cropped_image = image.crop(crop_box)
 
+        # cropped_image.show('crop')
+
         # Step 3: 放大圖片
         zoomed_image = cropped_image.resize(
             (cropped_image.width * 2, cropped_image.height * 2),
             Image.LANCZOS
         )
 
-        scale_x = zoomed_image.width / cropped_image.width
-        scale_y = zoomed_image.height / cropped_image.height
+        scale_x = cropped_image.width / zoomed_image.width
+        scale_y = cropped_image.height / zoomed_image.height
 
         # Step 4: OCR 辨識
-        ocr_result = ocr_model.ocr(np.array(zoomed_image), cls=True)
+        ocr_result = ocr_model.ocr(np.array(zoomed_image))
+
         print("[DEBUG] OCR 批號區結果：", ocr_result)
 
         # Step 5: 抓出符合格式的批號（前綴有中文就裁掉再判斷）

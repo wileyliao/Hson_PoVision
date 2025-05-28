@@ -12,9 +12,9 @@ RUN apt-get update && apt-get install -y \
 # Copy requirements and install Python dependencies
 COPY requirements.txt /app/requirements.txt
 RUN pip install --no-cache-dir -r /app/requirements.txt
+RUN pip install --no-cache-dir paddlepaddle-gpu==3.0.0 -i https://www.paddlepaddle.org.cn/packages/stable/cu118/
 
-ENV FLASK_APP=OCR_app.py 
+ENV FLASK_APP=OCR_app.py
 ENV FLASK_ENV=production
 
-RUN pip install --no-cache-dir gunicorn
-CMD ["gunicorn", "-w", "4", "-b", "0.0.0.0:3001", "OCR_app:app"]
+CMD ["gunicorn", "-w", "1", "-b", "0.0.0.0:3001", "OCR_app:app", "--log-level=debug", "--access-logfile=-", "--error-logfile=-"]

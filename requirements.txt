@@ -1,8 +1,4 @@
 flask==3.0.3
-numpy==1.26.4
-paddleocr==2.7.3
-paddlepaddle==2.6.1
+paddleocr==2.10.0
 OpenCC==1.1.7
-opencv-python-headless==4.10.0.84
-requests==2.32.3
 gunicorn==23.0.0

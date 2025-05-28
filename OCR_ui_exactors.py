@@ -201,8 +201,3 @@ def batch_num_extractor_nine(text_dict,expiry_date_coord):
     right_boxes = [closest_box] if closest_box else []
 
     return right_boxes[-1]['text'], right_boxes[-1]['conf'], right_boxes[-1]['coord']
-
-
-
-
-

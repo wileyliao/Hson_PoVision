@@ -101,4 +101,4 @@ def po_vision_app():
 
 
 if __name__ == '__main__':
-    app.run(host="0.0.0.0", port=3003, debug=True)
+    app.run(host="0.0.0.0", port=3001, debug=True)

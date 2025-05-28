@@ -42,18 +42,23 @@ def process_image(image_path, url):
         print(f"✘ {os.path.basename(image_path)} API 請求失敗，狀態碼：", response.status_code)
         return {"error": f"API 請求失敗，狀態碼：{response.status_code}"}
 
-# 從回傳中萃取三個欄位
+# 從回傳中萃取多筆資料欄位
 def extract_fields(data):
     try:
-        fields = data.get("Data", [{}])[0]
-        return {
-            "batch_num": fields.get("batch_num"),
-            "expirydate": fields.get("expirydate"),
-            "po_num": fields.get("po_num"),
-            "TimeTaken": data.get("TimeTaken")
-        }
+        items = data.get("Data", [])
+        time_taken = data.get("TimeTaken", "N/A")
+        results = []
+
+        for item in items:
+            results.append({
+                "po_num": item.get("po_num", ""),
+                "batch_num": item.get("batch_num", ""),
+                "expirydate": item.get("expirydate", ""),
+                "TimeTaken": time_taken
+            })
+        return results
     except Exception as e:
-        return {"error": str(e)}
+        return [{"error": str(e)}]
 
 # 主流程
 def main():
@@ -73,20 +78,27 @@ def main():
             return False
 
         print(f"[{folder_label}] 共找到 {len(image_files)} 張圖片，開始處理...\n")
+
         for img_file in image_files:
             image_path = os.path.join(folder_path, img_file)
             response_data = process_image(image_path, url)
-            extracted = extract_fields(response_data)
-            results[f"{folder_label}/{img_file}"] = extracted
+            extracted_items = extract_fields(response_data)
+            results[f"{folder_label}/{img_file}"] = extracted_items
 
-            # 檢查是否有欄位缺漏或錯誤
-            if (
-                "error" in extracted or
-                not extracted.get("batch_num") or
-                not extracted.get("expirydate") or
-                not extracted.get("po_num")
-            ):
+            if not extracted_items:
                 error_files.append(f"{folder_label}/{img_file}")
+                continue
+
+            for item in extracted_items:
+                if (
+                        "error" in item or
+                        not item.get("batch_num") or
+                        not item.get("expirydate") or
+                        not item.get("po_num")
+                ):
+                    error_files.append(f"{folder_label}/{img_file}")
+                    break
+
         return True
 
     folder_has_images = process_folder(selected_folder, os.path.basename(selected_folder))
@@ -110,8 +122,6 @@ def main():
     print(f"共 {len(error_files)} 個檔案有錯誤或缺欄位：")
     for err_file in error_files:
         print(f"✘ {err_file}")
-
-
 
 if __name__ == "__main__":
     main()

@@ -6,7 +6,9 @@ import json
 
 def read_config():
     with open("Test_config.json", "r", encoding="utf-8") as f:
-        return json.load(f)
+        raw_text = f.read()
+    raw_text = raw_text.replace("\\", "/")
+    return json.loads(raw_text)
 
 config = read_config()
 image_path = config.get("image")

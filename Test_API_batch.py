@@ -7,7 +7,9 @@ from tkinter import filedialog
 
 def read_config():
     with open("Test_config.json", "r", encoding="utf-8") as f:
-        return json.load(f)
+        raw_text = f.read()
+    raw_text = raw_text.replace("\\", "/")
+    return json.loads(raw_text)
 
 def encode_image_to_base64(image_path):
     with open(image_path, "rb") as image_file:
@@ -44,7 +46,7 @@ def extract_fields(data):
     try:
         items = data.get("Data", [])
         time_taken = data.get("TimeTaken", "N/A")
-        return [{
+        return [ {
             "po_num": item.get("po_num", ""),
             "batch_num": item.get("batch_num", ""),
             "expirydate": item.get("expirydate", ""),

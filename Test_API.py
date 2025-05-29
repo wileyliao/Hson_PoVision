@@ -4,7 +4,9 @@ import base64
 
 def read_config():
     with open("Test_config.json", "r", encoding="utf-8") as f:
-        return json.load(f)
+        raw_text = f.read()
+    raw_text = raw_text.replace("\\", "/")
+    return json.loads(raw_text)
 
 def encode_image_to_base64(image_path):
     with open(image_path, "rb") as image_file:

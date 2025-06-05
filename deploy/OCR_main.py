@@ -14,6 +14,7 @@ from sub_main_yonfu import handle_yufu
 from sub_main_pingting import handle_pingting
 from sub_main_pbf import handle_pbf
 from sub_main_dq import handle_dq
+from sub_main_cenra import handle_cenra
 
 
 
@@ -103,6 +104,9 @@ def po_vision_main(image):
         result = handle_pbf(image_common_text_traditional, merge_same_row_from_aligned)
     elif company == "登詮":
         result = handle_dq(image_common_text_traditional)
+    elif company == "CENRA":
+        result = handle_cenra(image_common_text_traditional)
+
 
 
     else:

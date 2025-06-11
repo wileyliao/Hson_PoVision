@@ -13,6 +13,7 @@ from sub_main_pingting import handle_pingting
 from sub_main_pbf import handle_pbf
 from sub_main_dq import handle_dq
 from sub_main_cenra import handle_cenra
+from sub_main_psh import handle_psh
 
 
 
@@ -107,6 +108,9 @@ def po_vision_main(image):
         result = handle_dq(image_common_text_traditional)
     elif company == "CENRA":
         result, flag = handle_cenra(merge_same_row_from_aligned, image_common_text_traditional, degree)
+    elif company == "尚典":
+        result = handle_psh(image_common_text_traditional, merge_same_row_from_aligned)
+
     else:
         result = {"po_num": ("", 0, [[0, 0]] * 4), "expiry_date": ("", 0, [[0, 0]] * 4), "batch_num": ("", 0, [[0, 0]] * 4)}
 

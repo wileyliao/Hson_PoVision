@@ -55,22 +55,20 @@ def po_vision_app():
         # 處理前贅字樣
         image = base64_decoder(data.get('base64')[len(prefix):])
         logging.info(f'Start Main analyzing: {guid}')
-        ocr_result, batch_expiry_checker, degree = po_vision_main(image)
+        ocr_result, batch_expiry_checker , degree = po_vision_main(image)
 
         end_time = time.time()
         time_taken = end_time - start_time
         log_contents = log_stream.getvalue()
 
-        final_list=[]
-        for i in range(len(ocr_result)):
-            data_dict={
-                'GUID': guid,
-                'logs': log_contents,
-                **ocr_result[i]
-            }
-            final_list.append(data_dict)
         response_data = {
-            'Data': final_list,
+            'Data': [
+                {
+                    'GUID': guid,
+                    'logs': log_contents,
+                    **ocr_result
+                }
+            ],
             'Degree': degree,
             'Code': 200,
             'Result': batch_expiry_checker,
@@ -101,4 +99,4 @@ def po_vision_app():
 
 
 if __name__ == '__main__':
-    app.run(host="0.0.0.0", port=3001, debug=True)
+    app.run(host="0.0.0.0", port=3003, debug=True)

@@ -16,7 +16,6 @@ from sub_main_cenra import handle_cenra
 from sub_main_psh import handle_psh
 
 
-
 from PIL import Image
 import cv2
 import numpy as np
@@ -34,7 +33,6 @@ keyword_mapping_dict = {
 }
 
 ocr_reader = PaddleOCR(lang='ch', device='gpu:0')
-
 def po_vision_main(image):
     if isinstance(image, str):
         image = cv2.imdecode(np.fromfile(image, dtype=np.uint8), cv2.IMREAD_COLOR)
@@ -83,7 +81,6 @@ def po_vision_main(image):
     merge_same_row_from_aligned = merge_same_row(aligned_same_column)
     logging.info(f"Merger same row: {merge_same_row_from_aligned}")
 
-
     if company == "大昌":
         result = handle_dksh(image_common_text_traditional, merge_same_row_from_aligned)
     elif company == "久裕":
@@ -107,44 +104,39 @@ def po_vision_main(image):
     elif company == "登詮":
         result = handle_dq(image_common_text_traditional)
     elif company == "CENRA":
-        result, flag = handle_cenra(merge_same_row_from_aligned, image_common_text_traditional, degree)
+        result= handle_cenra(merge_same_row_from_aligned, image_common_text_traditional)
     elif company == "尚典":
         result = handle_psh(image_common_text_traditional, merge_same_row_from_aligned)
 
     else:
-        result = {"po_num": ("", 0, [[0, 0]] * 4), "expiry_date": ("", 0, [[0, 0]] * 4), "batch_num": ("", 0, [[0, 0]] * 4)}
+        result = [{"po_num": ("", 0, [[0, 0]] * 4), "expiry_date": ("", 0, [[0, 0]] * 4),
+                  "batch_num": ("", 0, [[0, 0]] * 4)}]
 
+    result=result[0]
+    po_num, po_num_conf, po_num_coord = result["po_num"]
+    expiry_date, expiry_date_conf, expiry_date_coord = result["expiry_date"]
+    batch_num, batch_num_conf, batch_num_coord = result["batch_num"]
 
-    result_list = []
     batch_expiry_bool_operator = [1]
-    for results in result:
-        po_num, po_num_conf, po_num_coord = results["po_num"]
-        expiry_date, expiry_date_conf, expiry_date_coord = results["expiry_date"]
-        batch_num, batch_num_conf, batch_num_coord = results["batch_num"]
-        result_list.append({
-            "po_num": po_num,
-            "po_num_conf": str(po_num_conf),
-            "po_num_coord": ";".join([f"{int(x)},{int(y)}" for x, y in po_num_coord]),
-            "batch_num": batch_num,
-            "batch_num_conf": str(batch_num_conf),
-            "batch_num_coord": ";".join([f"{int(x)},{int(y)}" for x, y in batch_num_coord]),
-            "expirydate": expiry_date,
-            "expirydate_conf": str(expiry_date_conf),
-            "expirydate_coord": ";".join([f"{int(x)},{int(y)}" for x, y in expiry_date_coord])
-        })
-        print(result_list)
-        if not (batch_num == "" or expiry_date == ""):
-            batch_expiry_bool_operator.append(1)
-        else:
-            batch_expiry_bool_operator.append(0)
 
-
+    result_dict = {
+        "po_num": po_num,
+        "po_num_conf": str(po_num_conf),
+        "po_num_coord": ";".join([f"{int(x)},{int(y)}" for x, y in po_num_coord]),
+        "batch_num": batch_num,
+        "batch_num_conf": str(batch_num_conf),
+        "batch_num_coord": ";".join([f"{int(x)},{int(y)}" for x, y in batch_num_coord]),
+        "expirydate": expiry_date,
+        "expirydate_conf": str(expiry_date_conf),
+        "expirydate_coord": ";".join([f"{int(x)},{int(y)}" for x, y in expiry_date_coord]),
+        "degree": degree
+    }
     batch_expiry_bool = reduce(operator.mul, batch_expiry_bool_operator) == 1
-    logging.info("Result done")
 
-    return result_list, str(batch_expiry_bool), degree
+    logging.info("Result done")
+    return result_dict, str(batch_expiry_bool), degree
 
 
 if __name__ == '__main__':
-    image_p = r"C:\Users\Administrator\Desktop\yf_01.jpg"
+    image_p = r"C:\pycharm\po_vision_n\po_vision_img\po_vision\CENRA\CENRA_01.jpg"
     print(json.dumps(po_vision_main(image_p), indent=4, ensure_ascii=False))
